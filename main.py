@@ -5,7 +5,7 @@ import time
 
 
 
-openai_key = st.secrets('OPENAI_KEY')
+openai_key = st.secrets('openai_key')
 st.title('Translator')
 
 uploaded_file = st.file_uploader("Upload a file")
