@@ -1,13 +1,11 @@
 import streamlit as st
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.chat_models import ChatOpenAI
-from dotenv import load_dotenv
-import os
 import time
 
-load_dotenv()
 
-key = os.getenv('OPENAI_KEY')
+
+openai_key = st.secrets('OPENAI_KEY')
 st.title('Translator')
 
 uploaded_file = st.file_uploader("Upload a file")
@@ -39,7 +37,7 @@ if st.button('Translate'):
                         is_separator_regex = False,
                     )
         texts = text_splitter.create_documents([raw_text])
-        llm = ChatOpenAI(model="gpt-4-1106-preview", temperature=0, openai_api_key=key)
+        llm = ChatOpenAI(model="gpt-4-1106-preview", temperature=0, openai_api_key=openai_key)
         message_placeholder = st.empty()
         full = ""
         for t in texts:
