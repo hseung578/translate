@@ -39,7 +39,7 @@ if st.button('Translate'):
         message_placeholder = st.empty()
         full = ""
         for t in texts:
-            for chunk in llm.stream(f"Translate the following English Yotube caption to Korean. {t}"): 
+            for chunk in llm.stream(f"딥러닝 논문 세미나 관련 자막이야. 한글로 번역해줘. {t}"): 
                 full += chunk.content
                 time.sleep(0.05)
                 message_placeholder.markdown(scroll_container.format(full + "▌"), unsafe_allow_html=True)
