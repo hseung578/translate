@@ -34,7 +34,7 @@ if st.button('Translate'):
                         is_separator_regex = False,
                     )
         texts = text_splitter.create_documents([raw_text])
-        openai_key = st.secrets('openai_key')
+        openai_key = st.secrets["openai_key"]
         llm = ChatOpenAI(model="gpt-4-1106-preview", temperature=0, openai_api_key=openai_key)
         message_placeholder = st.empty()
         full = ""
