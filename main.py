@@ -1,49 +1,51 @@
 import streamlit as st
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.chat_models import ChatOpenAI
-import time
+import deepl
 
+class TranslatorApp:
+    def __init__(self):
+        if 'raw_text' not in st.session_state:
+            st.session_state.raw_text = ""
+        if 'result' not in st.session_state:
+            st.session_state.result = ""
 
-st.title('Translator')
+    def upload_file(self):
+        uploaded_file = st.file_uploader("Upload a file")
+        if uploaded_file is not None:
+            if uploaded_file.type == "text/plain":
+                st.session_state.raw_text = str(uploaded_file.read(), "utf-8")
+            else:
+                st.error("This file type is not supported yet.")
 
-uploaded_file = st.file_uploader("Upload a file")
+    def translate_text(self):
+        if st.session_state.raw_text:
+            auth_key = st.secrets["auth_key"]
+            translator = deepl.Translator(auth_key)
+            st.session_state.result = translator.translate_text(st.session_state.raw_text, target_lang="KO").text
+        else:
+            st.error("No text to translate. Please upload a text file.")
 
+    def download_button(self):
+        if st.session_state.result:
+            result_file = st.session_state.result.encode('utf-8')
+            st.download_button(
+                label="Download",
+                data=result_file,
+                file_name="result.txt",
+                mime="text/plain"
+            )
 
-    
+    def run(self):
+        st.title('Translator')
+        self.upload_file()
 
-if uploaded_file is not None:
-    if uploaded_file.type == "text/plain":
-        raw_text = str(uploaded_file.read(), "utf-8")
-    else:
-        st.error("This file type is not supported yet.")
-        raw_text = None
+        if st.button('Translate'):
+            self.translate_text()
 
-scroll_container = """
-<div style="height: 400px; overflow-y: scroll;">
-    {} <!-- 여기에 텍스트 삽입 -->
-</div>
-"""
+        self.download_button()
 
-if st.button('Translate'):
-    if raw_text:
-        text_splitter = CharacterTextSplitter(
-                        separator = "\n\n",
-                        chunk_size = 2000,
-                        chunk_overlap  = 0,
-                        length_function = len,
-                        is_separator_regex = False,
-                    )
-        texts = text_splitter.create_documents([raw_text])
-        openai_key = st.secrets["openai_key"]
-        llm = ChatOpenAI(model="gpt-4-1106-preview", temperature=0, openai_api_key=openai_key)
-        message_placeholder = st.empty()
-        full = ""
-        for t in texts:
-            for chunk in llm.stream(f"딥러닝 논문 세미나 관련 자막이야. 한글로 번역해줘. {t}"): 
-                full += chunk.content
-                time.sleep(0.05)
-                message_placeholder.markdown(scroll_container.format(full + "▌"), unsafe_allow_html=True)
-            message_placeholder.markdown(scroll_container.format(full), unsafe_allow_html=True)
-    else:
-        st.error("No text to translate. Please upload a text file.")
+def main():
+    app = TranslatorApp()
+    app.run()
 
+if __name__ == "__main__":
+    main()
